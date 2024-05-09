@@ -128,7 +128,7 @@ export class Collections {
     return res;
   }
 
-  /* random mint to re-enable
+  /* psuedo-random mint */
   mint(args: collections.mint_arguments): collections.empty_object {
     const to = args.to;
 
@@ -225,77 +225,7 @@ export class Collections {
     this._state.saveSupply(supply);
 
     return new collections.empty_object();
-  }*/
-
-  /* regular mint to remove */
-  mint(args: collections.mint_arguments): collections.empty_object {
-    const to = args.to;
-
-    // process
-    const supply = this._state.getSupply();
-    const balance = this._state.getBalance(to);
-    const tokens = SafeMath.add(supply.value, args.number_tokens_to_mint);
-
-    // pay mint price token or check creator
-    if (Constants.MINT_FEE > 0) {
-      const token_pay = new Token(Constants.TOKEN_PAY);
-      const _result = token_pay.transfer(to, Constants.ADDRESS_PAY, SafeMath.mul(args.number_tokens_to_mint, Constants.MINT_PRICE));
-      System.require(_result, "Failed to pay mint");
-    } else if (Constants.OWNER.length > 0) {
-      // if OWNER is setup
-      System.requireAuthority(authority.authorization_type.contract_call, Constants.OWNER);
-    } else {
-      // otherwise, check contract id permissions
-      System.requireAuthority(authority.authorization_type.contract_call, this._contractId);
-    }
-
-    // check limit amount tokens
-    System.require(tokens > 0, "token id out of bounds");
-    // check limit amount tokens
-    System.require(tokens <= Constants.MAX_SUPPLY, "token id out of bounds");
-
-    // assign the new token's owner
-    const start = SafeMath.add(supply.value, 1);
-    const newToken = new collections.token_object();
-    let tokenId: string;
-
-    for (let index = start; index <= tokens; index++) {
-      tokenId = index.toString();
-
-      // mint token
-      newToken.owner = to;
-      this._state.saveToken(tokenId, newToken);
-
-      // events
-      const mintEvent = new collections.mint_event(
-        to,
-        StringBytes.stringToBytes(tokenId)
-      );
-
-      const impacted = [to];
-      System.event(
-        "collections.mint_event",
-        Protobuf.encode(mintEvent, collections.mint_event.encode),
-        impacted
-      );
-    }
-
-    // update the owner's balance
-    balance.value = SafeMath.add(balance.value, args.number_tokens_to_mint);
-
-    // check limit address
-    System.require(balance.value <= 201, "exceeds the limit of tokens per address");
-
-    // increment supply
-    supply.value = SafeMath.add(supply.value, args.number_tokens_to_mint);
-
-    // save new states
-    this._state.saveBalance(to, balance);
-    this._state.saveSupply(supply);
-
-    return new collections.empty_object();
   }
-
 
   burn(args: collections.burn_arguments): collections.empty_object {
     // const from = args.from;
