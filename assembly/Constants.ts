@@ -3,7 +3,7 @@ import { Base58 } from "@koinos/sdk-as";
 export namespace Constants {
   export const NAME: string = "KoinosAgents";
   export const SYMBOL: string = "AGNT";
-  export const MINT_PRICE: u64 = 868500000;
+  export const MINT_PRICE: u64 = 9553500000;
   export const MINT_FEE: bool = true;
   export const MAX_SUPPLY: u64 = 10000;
   export const URI: string = "https://gateway.pinata.cloud/ipfs/QmQ7HBPQvWWJ5iZrtGkgRSnRQWDbnVS56HXsivH5hKcuNz";
